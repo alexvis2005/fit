@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="iconco.svg">
+<link rel="alternate icon" href="iconco.png">
+    <title>ПЛАН ПИТАНИЯ: 2000 ККАЛ | ЛОГ</title>
+    <style>
+        :root {
+            --bg: #f8f6f4;
+            --text: #4a4540;
+            --border: #d2ccc8;
+            --card-bg: #fefefe;
+            --accent: #8a827e;
+            --success: #6c7a67;
+            --label: #a09993;
+            --line: #e8e3de;
+            --water-empty: #f0eee9;
+            --water-full: #a5b5a0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 16px;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0 16px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        /* 🔙 Кнопка возврата */
+        .back-link {
+            margin-bottom: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.95rem;
+            text-decoration: none;
+            border-radius: 0;
+        }
+
+        .back-btn:hover {
+            background-color: #f5f3f1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background-color: var(--border);
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            background-color: var(--card-bg);
+            padding: 14px 10px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--text);
+            margin: 4px 0;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--label);
+        }
+
+        .day-nav {
+            display: flex;
+            gap: 1px;
+            background-color: var(--border);
+            height: 36px;
+            margin-bottom: 24px;
+        }
+
+        .day-btn {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: none;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--text);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-btn.active {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .meal-plan { margin-bottom: 24px; }
+
+        .day-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .meal-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 18px;
+            margin-bottom: 16px;
+            border-radius: 0;
+        }
+
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .meal-time {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .calories { font-size: 0.9rem; color: var(--accent); }
+
+        .meal-name {
+            font-weight: 600;
+            margin: 8px 0;
+            font-size: 1.05rem;
+        }
+
+        .macros {
+            display: flex;
+            gap: 16px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .macro { white-space: nowrap; }
+        .macro-value { font-weight: 700; color: var(--text); }
+        .macro-label { color: var(--label); font-size: 0.8rem; }
+
+        .ingredients {
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+
+        .ingredients ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .ingredients li {
+            margin-bottom: 4px;
+            position: relative;
+        }
+
+        .ingredients li:before {
+            content: "•";
+            position: absolute;
+            left: -15px;
+            color: var(--accent);
+        }
+
+        .instructions {
+            font-size: 0.85rem;
+            color: var(--label);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .check-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+        }
+
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 1px solid var(--border);
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        .checkbox.checked {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .check-label { font-size: 0.95rem; color: var(--text); }
+
+        .water-tracker {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 0;
+        }
+
+        .water-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+
+        .water-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 2px;
+            max-width: 600px;
+        }
+
+        .glass {
+            height: 80px;
+            background-color: var(--water-empty);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--label);
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        .glass.filled {
+            background-color: var(--water-full);
+            color: white;
+        }
+
+        .progress-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 0;
+        }
+
+        .progress-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 24px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            display: flex;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border-radius: 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--success);
+            transition: none;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--label);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover { background-color: #f5f3f1; }
+
+        .notes {
+            background-color: #fcfaf8;
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 0;
+        }
+
+        .notes-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+
+        .notes ul { padding-left: 24px; }
+        .notes li { margin-bottom: 6px; }
+
+        footer {
+            font-size: 0.8rem;
+            color: var(--label);
+            padding-top: 16px;
+            border-top: 1px solid var(--line);
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .day-nav { flex-wrap: wrap; height: auto; }
+            .day-btn { height: 36px; }
+            .water-grid { grid-template-columns: repeat(6, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="back-link">
+                <a href="index.html" class="back-btn">← Назад к тренировкам</a>
+            </div>
+            <h1>ПЛАН ПИТАНИЯ: 2000 ККАЛ</h1>
+            <div class="subtitle">Лог наблюдений | Цель: -95 → -80 кг | 8 недель</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">2000</div>
+                <div class="stat-label">ККАЛ</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">180г</div>
+                <div class="stat-label">БЕЛОК</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">55г</div>
+                <div class="stat-label">ЖИРЫ</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">195г</div>
+                <div class="stat-label">УГЛ</div>
+            </div>
+        </div>
+
+        <div class="day-nav">
+            <button class="day-btn active" data-day="0">ПН</button>
+            <button class="day-btn" data-day="1">ВТ</button>
+            <button class="day-btn" data-day="2">СР</button>
+            <button class="day-btn" data-day="3">ЧТ</button>
+            <button class="day-btn" data-day="4">ПТ</button>
+            <button class="day-btn" data-day="5">СБ</button>
+            <button class="day-btn" data-day="6">ВС</button>
+        </div>
+
+        <div class="meal-plan" id="mealPlan"></div>
+
+        <div class="water-tracker">
+            <div class="water-title">ВОДА: цель 3.0 л (12 × 250 мл)</div>
+            <div class="water-grid" id="waterGrid"></div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-title">ПРОГРЕСС ДНЯ</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-labels">
+                <span>Приёмов: <span id="completedCount">0</span> / 6</span>
+                <span id="progressPercent">0%</span>
+            </div>
+            <button class="btn btn--reset" id="resetBtn">Сбросить день</button>
+        </div>
+
+        <div class="notes">
+            <div class="notes-title">ИНСТРУКЦИИ</div>
+            <ul>
+                <li>Белок — в первую половину дня и после тренировки</li>
+                <li>Ужин: белок + овощи (огурцы, помидоры, капуста)</li>
+                <li>Запрещено: сахар, белый хлеб, сладкие напитки</li>
+                <li>Приём пищи каждые 3–4 часа</li>
+                <li>Соль ≤ 5 г/день</li>
+                <li>Вода: 2.5–3.0 л (кроме чая/кофе)</li>
+            </ul>
+        </div>
+
+        <footer>
+            <div>Алексей Висляев | Москва | Декабрь 2025</div>
+            <div>Данные сохраняются локально. Резервная копия — вручную.</div>
+        </footer>
+    </div>
+
+    <script>
+        const plan = [
+            {
+                name: "Понедельник",
+                meals: [
+                    { t: "🌅 7:00", n: "Омлет с курицей", kcal: 450, p: 45, f: 22, c: 15, ing: ["Яйца — 3 шт", "Курица — 100г", "Помидор — 1 шт", "Шпинат — 50г", "Масло — 5г"], ins: "Курицу обжарить, добавить овощи, залить яйцами, готовить 7–10 мин под крышкой." },
+                    { t: "🕙 10:30", n: "Творог с орехами", kcal: 320, p: 35, f: 15, c: 12, ing: ["Творог 5% — 200г", "Миндаль — 15г", "Кефир — 50г"], ins: "Смешать. Корица — опционально." },
+                    { t: "🕐 13:30", n: "Гречка с говядиной", kcal: 550, p: 40, f: 18, c: 55, ing: ["Гречка сухая — 80г", "Говядина — 150г", "Лук/морковь — по 50г"], ins: "Гречку отварить. Мясо тушить 30–40 мин с овощами." },
+                    { t: "🕓 16:30", n: "Протеин + банан", kcal: 280, p: 30, f: 3, c: 35, ing: ["Протеин — 30г", "Банан — 1 шт", "Молоко — 200мл"], ins: "Взбить. Выпить в течение 30 мин после тренировки." },
+                    { t: "🕖 19:30", n: "Рыба + салат", kcal: 300, p: 35, f: 12, c: 10, ing: ["Рыба (треска/хек) — 200г", "Огурцы — 2 шт", "Помидор — 1 шт"], ins: "Рыбу на пару 15–20 мин. Овощи — свежие, с лимоном." },
+                    { t: "🕙 22:00", n: "Казеин", kcal: 150, p: 25, f: 3, c: 8, ing: ["Казеин — 25г", "Творог 0% — 100г", "Вода — 150мл"], ins: "Взбить. Медленное высвобождение белка ночью." }
+                ]
+            },
+            {
+                name: "Вторник",
+                meals: [
+                    { t: "🌅 7:00", n: "Творожная запеканка", kcal: 420, p: 40, f: 18, c: 25, ing: ["Творог 5% — 200г", "Яйца — 2 шт", "Отруби — 20г"], ins: "Смешать, запекать 25 мин при 180°C." },
+                    { t: "🕙 10:30", n: "Протеиновый батончик", kcal: 250, p: 20, f: 8, c: 25, ing: ["Протеин — 30г", "Овсянка — 30г", "Яичный белок — 2 шт"], ins: "Смешать, запечь 15 мин при 160°C." },
+                    { t: "🕐 13:30", n: "Курица + бурый рис", kcal: 520, p: 45, f: 12, c: 50, ing: ["Рис сухой — 70г", "Куриная грудка — 180г", "Брокколи — 200г"], ins: "Рис отварить. Курицу на пару или гриле." },
+                    { t: "🕓 16:30", n: "Батат + тунец", kcal: 350, p: 35, f: 5, c: 40, ing: ["Батат — 200г", "Тунец — 150г"], ins: "Батат запечь. Подавать с тунцом." },
+                    { t: "🕖 19:30", n: "Салат с тунцом", kcal: 320, p: 38, f: 15, c: 8, ing: ["Тунец — 150г", "Яйца — 2 шт", "Овощи — 300г"], ins: "Смешать. Заправить 5г масла." },
+                    { t: "🕙 22:00", n: "Греческий йогурт", kcal: 140, p: 22, f: 3, c: 10, ing: ["Йогурт 2% — 200г", "Клетчатка — 10г"], ins: "Смешать. Съесть без добавок." }
+                ]
+            },
+            {
+                name: "Среда",
+                meals: [
+                    { t: "🌅 7:00", n: "Овсянка + белки", kcal: 430, p: 42, f: 10, c: 50, ing: ["Овсянка — 60г", "Белки — 5 шт"], ins: "Сварить овсянку, добавить белки в конце." },
+                    { t: "🕙 10:30", n: "Сырники (б/м)", kcal: 350, p: 35, f: 12, c: 25, ing: ["Творог 5% — 200г", "Яйцо — 1 шт", "Отруби — 20г"], ins: "Запечь на антипригарной сковороде." },
+                    { t: "🕐 13:30", n: "Индейка + киноа", kcal: 500, p: 45, f: 15, c: 45, ing: ["Индейка — 180г", "Киноа сухая — 60г"], ins: "Приготовить на пару." },
+                    { t: "🕓 16:30", n: "Протеин + фрукты", kcal: 300, p: 30, f: 2, c: 40, ing: ["Протеин — 30г", "Яблоко + груша — по 1 шт"], ins: "Фрукты съесть, запить протеином." },
+                    { t: "🕖 19:30", n: "Морепродукты", kcal: 280, p: 32, f: 10, c: 12, ing: ["Креветки/мидии — 200г", "Салат — 300г"], ins: "Приготовить на пару. Подавать с лимоном." },
+                    { t: "🕙 22:00", n: "Творог + лён", kcal: 180, p: 26, f: 5, c: 10, ing: ["Творог 5% — 150г", "Льняное семя — 10г"], ins: "Смешать. Есть за 30 мин до сна." }
+                ]
+            }
+        ];
+
+        for (let i = 3; i < 7; i++) {
+            plan.push({
+                name: ["Четверг", "Пятница", "Суббота", "Воскресенье"][i - 3],
+                meals: JSON.parse(JSON.stringify(plan[i % 3].meals))
+            });
+        }
+
+        let currentDay = 0;
+        let completed = JSON.parse(localStorage.getItem('diet_completed')) || {};
+        let water = JSON.parse(localStorage.getItem('diet_water')) || {};
+
+        const mp = document.getElementById('mealPlan');
+        const wGrid = document.getElementById('waterGrid');
+        const pf = document.getElementById('progressFill');
+        const cc = document.getElementById('completedCount');
+        const pp = document.getElementById('progressPercent');
+        const resetBtn = document.getElementById('resetBtn');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDay(currentDay);
+            renderWater();
+            updateProgress();
+            bindUI();
+        });
+
+        function bindUI() {
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentDay = parseInt(btn.dataset.day);
+                    loadDay(currentDay);
+                });
+            });
+            resetBtn.addEventListener('click', resetDay);
+        }
+
+        function loadDay(dayIndex) {
+            const day = plan[dayIndex];
+            let html = `<div class="day-title">${day.name}</div>`;
+
+            day.meals.forEach((m, i) => {
+                const key = `${dayIndex}-${i}`;
+                const done = completed[key] || false;
+
+                html += `
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <div class="meal-time">${m.t}</div>
+                        <div class="calories">${m.kcal} ккал</div>
+                    </div>
+                    <div class="meal-name">${m.n}</div>
+                    <div class="macros">
+                        <div class="macro"><span class="macro-value">${m.p}г</span> <span class="macro-label">Б</span></div>
+                        <div class="macro"><span class="macro-value">${m.f}г</span> <span class="macro-label">Ж</span></div>
+                        <div class="macro"><span class="macro-value">${m.c}г</span> <span class="macro-label">У</span></div>
+                    </div>
+                    <div class="ingredients">
+                        <ul>
+                            ${m.ing.map(x => `<li>${x}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="instructions">${m.ins}</div>
+                    <div class="check-row">
+                        <div class="checkbox ${done ? 'checked' : ''}" data-key="${key}">${done ? '✓' : ''}</div>
+                        <div class="check-label">Съедено</div>
+                    </div>
+                </div>
+                `;
+            });
+
+            mp.innerHTML = html;
+
+            document.querySelectorAll('.checkbox').forEach(el => {
+                el.addEventListener('click', () => {
+                    const key = el.dataset.key;
+                    completed[key] = !completed[key];
+                    el.classList.toggle('checked');
+                    el.textContent = completed[key] ? '✓' : '';
+                    save();
+                    updateProgress();
+                });
+            });
+        }
+
+        function renderWater() {
+            wGrid.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const filled = water[i] || false;
+                wGrid.innerHTML += `
+                <div class="glass ${filled ? 'filled' : ''}" data-i="${i}">${i + 1}</div>
+                `;
+            }
+            document.querySelectorAll('.glass').forEach(g => {
+                g.addEventListener('click', () => {
+                    const i = g.dataset.i;
+                    water[i] = !water[i];
+                    g.classList.toggle('filled');
+                    save();
+                });
+            });
+        }
+
+        function updateProgress() {
+            const meals = plan[currentDay].meals;
+            const doneCount = meals.reduce((acc, _, i) => {
+                return completed[`${currentDay}-${i}`] ? acc + 1 : acc;
+            }, 0);
+            const pct = Math.round((doneCount / meals.length) * 100);
+            cc.textContent = doneCount;
+            pp.textContent = `${pct}%`;
+            pf.style.width = `${pct}%`;
+        }
+
+        function save() {
+            localStorage.setItem('diet_completed', JSON.stringify(completed));
+            localStorage.setItem('diet_water', JSON.stringify(water));
+        }
+
+        function resetDay() {
+            if (confirm('Сбросить все отметки за ' + plan[currentDay].name + '?')) {
+                plan[currentDay].meals.forEach((_, i) => {
+                    delete completed[`${currentDay}-${i}`];
+                });
+                for (let i = 0; i < 12; i++) water[i] = false;
+                save();
+                loadDay(currentDay);
+                renderWater();
+                updateProgress();
+            }
+        }
+    </script>
+</body>
+</html>

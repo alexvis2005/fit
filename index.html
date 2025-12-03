@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="iconco.svg">
+<link rel="alternate icon" href="iconco.png">
+    <title>ДНЕВНИК НАБЛЮДЕНИЙ: ОТЖИМАНИЯ</title>
+    <style>
+        :root {
+            --bg: #f3f0ed;
+            --text: #3a3633;
+            --border: #c9c3bd;
+            --card-bg: #fdfcfb;
+            --primary: #5e5046;
+            --success: #4a6e58;
+            --rest: #7a7269;
+            --incomplete: #b5a99e;
+            --line: #e8e3de;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 840px;
+            margin: 0 auto;
+        }
+
+        header {
+            padding: 24px 0 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--primary);
+            opacity: 0.8;
+        }
+
+        /* НОВЫЙ БЛОК: ПЕРЕХОД К ПИТАНИЮ */
+        .navigation-link {
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            /* ПРЯМЫЕ УГЛЫ */
+            border-radius: 0;
+            transition: background-color 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #f0eee9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background-color: var(--border);
+            margin: 16px 0;
+        }
+
+        .stat-item {
+            background-color: var(--card-bg);
+            padding: 16px 12px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin: 4px 0;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            opacity: 0.7;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            background-color: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 0;
+        }
+
+        .btn:hover {
+            background-color: #f9f7f5;
+        }
+
+        .btn--primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1px;
+            margin: 16px 0;
+            background-color: var(--border);
+            height: 36px;
+        }
+
+        .filter {
+            flex: 1;
+            background-color: var(--card-bg);
+            border: none;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--text);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .day-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            border-radius: 0;
+        }
+
+        .day-card.completed {
+            border-color: var(--success);
+        }
+
+        .day-card.rest {
+            background-color: #faf8f6;
+            border-color: var(--rest);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .date {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            background-color: var(--incomplete);
+            color: white;
+        }
+
+        .day-card.completed .status {
+            background-color: var(--success);
+        }
+
+        .day-card.rest .status {
+            background-color: var(--rest);
+        }
+
+        .exercise-list {
+            list-style-type: none;
+        }
+
+        .exercise-item {
+            padding: 4px 0;
+            display: flex;
+        }
+
+        .exercise-icon {
+            width: 20px;
+            text-align: center;
+            font-weight: bold;
+            margin-right: 8px;
+            color: var(--primary);
+        }
+
+        .mark-btn {
+            width: 28px;
+            height: 28px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            float: right;
+            margin-top: -8px;
+            border-radius: 0;
+        }
+
+        .mark-btn:hover:not(.disabled) {
+            background-color: #f0eee9;
+        }
+
+        .mark-btn.checked {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .mark-btn.rest {
+            background-color: var(--rest);
+            color: white;
+            cursor: default;
+        }
+
+        .motivation {
+            font-style: normal;
+            margin: 12px 0;
+            padding: 12px;
+            background-color: var(--card-bg);
+            border-left: 2px solid var(--primary);
+            font-size: 1rem;
+        }
+
+        footer {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--line);
+            font-size: 0.85rem;
+            color: var(--primary);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 600px) {
+            .stats { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; }
+            .btn { width: 100%; }
+            .filters { flex-wrap: wrap; height: auto; }
+            .filter { height: 36px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="title">ДНЕВНИК НАБЛЮДЕНИЙ: ОТЖИМАНИЯ</div>
+            <div class="subtitle">01.12.2025 — 01.01.2026 | Пн–Сб: тренировка, Вс: отдых</div>
+        </header>
+
+        <!-- 🔗 НОВАЯ КНОПКА -->
+        <div class="navigation-link">
+            <a href="food.html" class="nav-btn">🍽️ План питания (2000 ккал)</a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="completedDays">0</div>
+                <div class="stat-label">дней</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalPushups">0</div>
+                <div class="stat-label">отжиманий</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="progress">0%</div>
+                <div class="stat-label">прогресс</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn--primary" id="markToday">Отметить сегодня</button>
+            <button class="btn" id="resetAll">Сбросить всё</button>
+            <button class="btn btn--success" id="export">Экспортировать</button>
+        </div>
+
+        <div class="filters">
+            <button class="filter active" data-filter="all">Все</button>
+            <button class="filter" data-filter="workout">Тренировки</button>
+            <button class="filter" data-filter="rest">Отдых</button>
+            <button class="filter" data-filter="incomplete">Не выполнено</button>
+        </div>
+
+        <div id="calendar">
+            <!-- заполняется JS -->
+        </div>
+
+        <div class="motivation" id="motivation">
+            Фиксируй. Анализируй. Улучшай.
+        </div>
+
+        <footer>
+            <div>Алексей Висляев | Москва | Декабрь 2025</div>
+            <div>Данные сохраняются локально. Резервная копия — при экспорте.</div>
+        </footer>
+    </div>
+
+    <div class="notification" id="notification" style="
+        position: fixed; top: 16px; right: 16px;
+        background-color: var(--card-bg); border: 1px solid var(--border);
+        padding: 12px 16px; font-size: 0.9rem;
+        opacity: 0; transform: translateX(120%);
+        transition: all 0.3s; z-index: 100;
+    "></div>
+
+    <script>
+        const plan = [
+            { d: "01.12 (пн)", t: "w", e: ["30 классических"] },
+            { d: "02.12 (вт)", t: "w", e: ["30 классических"] },
+            { d: "03.12 (ср)", t: "w", e: ["Разминка", "30 широких", "Тяга 3×10", "Планка 2×30с", "Заминка"] },
+            { d: "04.12 (чт)", t: "w", e: ["Разминка", "34 классических", "Тяга 3×12", "Планка 45с", "Заминка"] },
+            { d: "05.12 (пт)", t: "w", e: ["Разминка", "32 узких", "Тяга 2×15", "Планка 2×35с", "Заминка"] },
+            { d: "06.12 (сб)", t: "w", e: ["Разминка", "35+ пирамида", "Тяга 3×10", "Планка 60с", "Заминка"] },
+            { d: "07.12 (вс)", t: "r", e: ["Полный отдых"] },
+            { d: "08.12 (пн)", t: "w", e: ["Разминка", "36 классических", "Тяга 4×10", "Планка 80с", "Заминка"] },
+            { d: "09.12 (вт)", t: "w", e: ["Разминка", "35 широких", "Тяга 3×12", "Планка 70с", "Заминка"] },
+            { d: "10.12 (ср)", t: "w", e: ["Разминка", "38 узких", "Тяга 5×8", "Планка 90с", "Заминка"] },
+            { d: "11.12 (чт)", t: "w", e: ["Разминка", "Суперсет 30+24", "Планка 3×30с", "Заминка"] },
+            { d: "12.12 (пт)", t: "w", e: ["Разминка", "38 смешанных", "Тяга 3×15", "Планка 80с", "Заминка"] },
+            { d: "13.12 (сб)", t: "w", e: ["Разминка", "Тест +10", "Тяга 2×20", "Заминка"] },
+            { d: "14.12 (вс)", t: "r", e: ["Полный отдых"] },
+            { d: "15.12 (пн)", t: "w", e: ["Разминка", "40 классических", "Тяга 4×12", "Планка 100с", "Заминка"] },
+            { d: "16.12 (вт)", t: "w", e: ["Разминка", "33 ноги вверх", "Тяга до отказа", "Планка 90с", "Заминка"] },
+            { d: "17.12 (ср)", t: "w", e: ["Разминка", "40 узких (пауза)", "Тяга 5×10", "Планка 120с", "Заминка"] },
+            { d: "18.12 (чт)", t: "w", e: ["Разминка", "45 лесенка", "Тяга 12→10→8→6", "Заминка"] },
+            { d: "19.12 (пт)", t: "w", e: ["Функциональный день: 90 отжиманий", "Растяжка 10 мин"] },
+            { d: "20.12 (сб)", t: "w", e: ["Разминка", "50 свободных", "Тяга 4×15", "Планка 120с", "Заминка"] },
+            { d: "21.12 (вс)", t: "r", e: ["Полный отдых"] },
+            { d: "22.12 (пн)", t: "w", e: ["Разминка", "45 классических", "Тяга 3×12", "Планка 120с", "Заминка"] },
+            { d: "23.12 (вт)", t: "w", e: ["Разминка", "80 ёлка", "Скручивания 3×20", "Заминка"] },
+            { d: "24.12 (ср)", t: "w", e: ["Разминка", "32 ступеньки", "Тяга 3×12", "Планка 150с", "Заминка"] },
+            { d: "25.12 (чт)", t: "w", e: ["Разминка", "45 (шир.+ноги)", "Тяга 5×8", "Заминка"] },
+            { d: "26.12 (пт)", t: "w", e: ["Разминка", "30 узких", "Тяга 2×15", "Растяжка"] },
+            { d: "27.12 (сб)", t: "w", e: ["Разминка", "Тест в 3 стилях", "Тяга 2×20", "Заминка"] },
+            { d: "28.12 (вс)", t: "r", e: ["Полный отдых"] },
+            { d: "29.12 (пн)", t: "w", e: ["Разминка", "45 классических", "Тяга 3×12", "Планка 120с", "Заминка"] },
+            { d: "30.12 (вт)", t: "w", e: ["Разминка", "40 широких", "Тяга 2×15", "Заминка"] },
+            { d: "31.12 (ср)", t: "w", e: ["Разминка", "31 отжимание", "Растяжка", "Анализ месяца"] },
+            { d: "01.01 (чт)", t: "w", e: ["Разминка", "Финальный тест", "Заминка", "Подведение итогов"] }
+        ];
+
+        const motivations = [
+            "Фиксируй. Анализируй. Улучшай.",
+            "Данные не лгут. Дисциплина — в последовательности.",
+            "Каждое отжимание — точка в логе. Каждый день — новая строка.",
+            "Результат — следствие. А следствие требует причин.",
+            "Ты не тренируешь мышцы. Ты тренируешь характер."
+        ];
+
+        const STORAGE_KEY = 'pushup_log_strict';
+        let state = {
+            completed: new Set(),
+            details: {}
+        };
+
+        const cal = document.getElementById('calendar');
+        const cdEl = document.getElementById('completedDays');
+        const tpEl = document.getElementById('totalPushups');
+        const prEl = document.getElementById('progress');
+        const motEl = document.getElementById('motivation');
+        const notif = document.getElementById('notification');
+
+        function init() {
+            load(); render(); updateStats(); bind();
+        }
+
+        function load() {
+            try {
+                const d = localStorage.getItem(STORAGE_KEY);
+                if (d) {
+                    const s = JSON.parse(d);
+                    state.completed = new Set(s.c || []);
+                    state.details = s.d || {};
+                }
+            } catch (e) { console.warn('Reset'); }
+        }
+
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                c: Array.from(state.completed),
+                d: state.details
+            }));
+        }
+
+        function getStats() {
+            let c = 0, p = 0;
+            for (let i = 0; i < plan.length; i++) {
+                if (state.completed.has(i)) {
+                    c++;
+                    const d = state.details[i];
+                    p += d?.p || 30;
+                }
+            }
+            return { c, p, total: plan.length };
+        }
+
+        function updateStats() {
+            const s = getStats();
+            cdEl.textContent = s.c;
+            tpEl.textContent = s.p;
+            prEl.textContent = `${Math.round((s.c / s.total) * 100)}%`;
+            motEl.textContent = motivations[Math.min(4, Math.floor(s.c / 7))];
+        }
+
+        function render(filter = 'all') {
+            cal.innerHTML = '';
+            plan.forEach((day, i) => {
+                const done = state.completed.has(i);
+                const d = state.details[i] || {};
+
+                if (filter === 'workout' && day.t !== 'w') return;
+                if (filter === 'rest' && day.t !== 'r') return;
+                if (filter === 'incomplete' && done) return;
+
+                const card = document.createElement('div');
+                card.className = `day-card${done ? ' completed' : ''}${day.t === 'r' ? ' rest' : ''}`;
+                card.dataset.i = i;
+
+                const status = done ? '✓' : (day.t === 'r' ? 'отдых' : 'ожидает');
+                const statusCls = done ? 'success' : (day.t === 'r' ? 'rest' : 'incomplete');
+
+                card.innerHTML = `
+                    <div class="day-header">
+                        <div class="date">${day.d}</div>
+                        <div class="status ${statusCls}">${status}</div>
+                    </div>
+                    <ul class="exercise-list">
+                        ${day.e.map(ex => {
+                            let icon = '•';
+                            if (ex.includes('отжиман')) icon = '💪';
+                            else if (ex.includes('Разминка')) icon = '→';
+                            else if (ex.includes('Тяга')) icon = '–';
+                            else if (ex.includes('Планка')) icon = '▮';
+                            else if (ex.includes('Заминка')) icon = '←';
+                            else if (ex.includes('Тест')) icon = '=';
+                            return `<li class="exercise-item"><span class="exercise-icon">${icon}</span>${ex}</li>`;
+                        }).join('')}
+                    </ul>
+                    ${done && d.p ? `<div style="margin-top:6px;font-size:0.8rem;opacity:0.7;">${d.p} отж.</div>` : ''}
+                    <button class="mark-btn${done ? ' checked' : ''}${day.t === 'r' ? ' rest disabled' : ''}" data-i="${i}">
+                        ${done ? '✓' : (day.t === 'r' ? '—' : '+')}
+                    </button>
+                `;
+                cal.appendChild(card);
+            });
+
+            cal.querySelectorAll('.mark-btn:not(.disabled)').forEach(btn => {
+                btn.onclick = () => toggleDay(+btn.dataset.i);
+            });
+        }
+
+        function toggleDay(i) {
+            const day = plan[i];
+            if (state.completed.has(i)) {
+                state.completed.delete(i);
+                delete state.details[i];
+            } else {
+                const def = day.e.find(e => e.includes('отжиман')) || day.e.find(e => /\d+/.test(e)) || '';
+                const match = def.match(/\d+/);
+                const defP = match ? parseInt(match[0]) : 30;
+                const p = prompt(`Количество отжиманий (${defP} по плану):`, defP);
+                if (p === null) return;
+                const num = parseInt(p);
+                if (isNaN(num) || num < 0) return alert('Число должно быть ≥ 0');
+                state.completed.add(i);
+                state.details[i] = { p: num };
+            }
+            save(); updateStats(); render();
+        }
+
+        function markToday() {
+            for (let i = 0; i < plan.length; i++) {
+                if (!state.completed.has(i) && plan[i].t === 'w') {
+                    toggleDay(i);
+                    return;
+                }
+            }
+            notify('Все дни выполнены.');
+        }
+
+        function resetAll() {
+            if (confirm('Сбросить весь лог?')) {
+                state = { completed: new Set(), details: {} };
+                localStorage.removeItem(STORAGE_KEY);
+                render(); updateStats();
+                notify('Лог сброшен.');
+            }
+        }
+
+        function exportData() {
+            const s = getStats();
+            let csv = 'Дата;Тип;Отжиманий;Выполнено\n';
+            plan.forEach((d, i) => {
+                const det = state.details[i] || {};
+                csv += `${d.d};${d.t === 'w' ? 'тренировка' : 'отдых'};${det.p || 0};${state.completed.has(i) ? 'да' : 'нет'}\n`;
+            });
+            csv += `\nИтого:;${s.total} дней;${s.p} отжиманий;${s.c} выполнено`;
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `log_aleksey_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            notify('Экспорт завершён.');
+        }
+
+        function notify(msg) {
+            notif.textContent = msg;
+            notif.style.opacity = '1';
+            notif.style.transform = 'translateX(0)';
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                notif.style.transform = 'translateX(120%)';
+            }, 2500);
+        }
+
+        function bind() {
+            document.getElementById('markToday').onclick = markToday;
+            document.getElementById('resetAll').onclick = resetAll;
+            document.getElementById('export').onclick = exportData;
+
+            document.querySelectorAll('.filter').forEach(btn => {
+                btn.onclick = () => {
+                    document.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    render(btn.dataset.filter);
+                };
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
